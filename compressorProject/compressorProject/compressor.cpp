@@ -8,18 +8,20 @@ using namespace std;
 
 algo compressor(const char* filename, unsigned threshold)
 {
-	unsigned char *RGB;
+	unsigned char *rgb;
 	unsigned heigh, width, size;
-	if (LodePNG_decode32_file(&RGB, &heigh, &width, filename))
+	string buffer;
+	if (LodePNG_decode32_file(&rgb, &heigh, &width, filename))
 	{
 		cout << error << endl;
-		return erro;            //algún error
+		return erro;            //algÃºn error
 	}
 	size = heigh * width * 4;
-
+	
+	recursive(rgb,size,size,treshold,buffer);
 }
 
-int recursive(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsigned threshold, string& buffer)
+void recursive(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsigned threshold, string& buffer)
 {
 	unsigned Rmin = 255, Rmax = 0, Gmin = 255, Gmax = 0, Bmin = 255, Bmax = 0;
 	unsigned weight = 0;
@@ -42,16 +44,29 @@ int recursive(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsigned th
 		}
 	}
 	weight = Rmax - Rmin + Gmax - Gmin + Bmax - Bmin;
-	if (weight < threshold)
+	if ((weight < threshold) || (mySide/2 == 1))
 	{
-
-
-
+		long int totalRed = 0, totalGreen = 0, totalBlue = 0;
+		for (int i = 0; i < mySide; i++)
+		{
+			for (int j = 0; j < mySide; j++)
+			{
+				totalRed += rgb[4 * i*j + i * (maxSide - mySide)];
+				totalGreen = rgb[4 * i*j + i * (maxSide - mySide) + 1];
+				totalBlue = rgb[4 * i*j + i * (maxSide - mySide) + 2];
+			}
+		}		
+		buffer += 'H';
+		buffer += totalRed/(mySide*mySide); 
+		buffer += totalGreen/(mySide*mySide); 
+		buffer += totalBlue/(mySide*mySide); 
 	}
 	else
 	{
 		buffer += 'N';	//marca como nodo la posicion actual
-		recursive();
-
+		recursive(rgb,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de arriba a la izquierda
+		recursive(rgb+4*mySide/2,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de arriba a la derecha
+		recursive(rgb+4*mySide/2*maxSize,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de abajo a la izquierda
+		recursive(rgb+4*mySide/2*maxSize+4*mySide/2,maxSide,mySide/2,threshold,buffer); //llama para el cuadrante de abajo a la derecha
 	}
 }
