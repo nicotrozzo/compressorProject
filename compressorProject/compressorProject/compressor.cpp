@@ -50,6 +50,8 @@ int recursive(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsigned th
 	}
 	else
 	{
+		buffer += 'N';	//marca como nodo la posicion actual
+		recursive();
 
 	}
 }
