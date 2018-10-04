@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "lodepng.h"
+#include <iostream>
 
+using namespace std;
 
 algo compressor(const char* filename, unsigned threshold)
 {
@@ -17,7 +19,7 @@ algo compressor(const char* filename, unsigned threshold)
 
 }
 
-int recursive(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsigned threshold)
+int recursive(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsigned threshold, string& buffer)
 {
 	unsigned Rmin = 255, Rmax = 0, Gmin = 255, Gmax = 0, Bmin = 255, Bmax = 0;
 	unsigned weight = 0;
@@ -40,7 +42,12 @@ int recursive(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsigned th
 		}
 	}
 	weight = Rmax - Rmin + Gmax - Gmin + Bmax - Bmin;
-	if(weight <= threshold)
+	if (weight < threshold)
+	{
+
+
+
+	}
 	else
 	{
 
