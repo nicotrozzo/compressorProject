@@ -6,19 +6,20 @@
 
 using namespace std;
 
-algo compressor(const char* filename, unsigned threshold)
+bool compressor(const char* filename, unsigned threshold)
 {
+	bool ret = true;
 	unsigned char *rgb;
-	unsigned heigh, width, size;
+	unsigned height, width, size;
 	string buffer;
-	if (LodePNG_decode32_file(&rgb, &heigh, &width, filename))
+	if (LodePNG_decode32_file(&rgb, &height, &width, filename))
 	{
-		cout << error << endl;
-		return erro;            //algún error
+		ret = false;        
 	}
 	size = heigh * width * 4;
-	
 	recursive(rgb,size,size,treshold,buffer);
+	//escribir buffer en archivo
+	return ret;
 }
 
 void recursive(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsigned threshold, string& buffer)
