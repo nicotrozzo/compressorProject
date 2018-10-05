@@ -1,13 +1,26 @@
 #include <iostream>
+#include <fstream>
 #include "lodepng.h"
  
 using namespace std;
 
+
 bool decompress(const char* filename)
 {
-  string pngName = filename;
-  pngName. 
-  LodePNG_encode32_file(pngName, rgb,width, height);
+  
+}
 
 
+void recursive(const char* filename)
+{
+	ifstream ifs;
+	ifs.open(filename, std::ifstream::in);
+	if (ifs.get() == 'N')
+	{
+
+	}
+	else
+	{
+
+	}
 }

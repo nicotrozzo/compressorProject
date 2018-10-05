@@ -12,12 +12,12 @@ bool compressor(const char* filename, unsigned threshold)
 	unsigned char *rgb;
 	unsigned height, width, size;
 	string buffer;
-	if (LodePNG_decode32_file(&rgb, &height, &width, filename))
+	if (lodepng_decode32_file(&rgb, &height, &width, filename))
 	{
 		ret = false;        
 	}
-	size = heigh * width * 4;
-	recursive(rgb,size,size,treshold,buffer);
+	size = height * width * 4;
+	recursive(rgb,size,size,threshold,buffer);
 	//escribir buffer en archivo
 	return ret;
 }
@@ -67,7 +67,7 @@ void recursive(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsigned t
 		buffer += 'N';	//marca como nodo la posicion actual
 		recursive(rgb,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de arriba a la izquierda
 		recursive(rgb+4*mySide/2,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de arriba a la derecha
-		recursive(rgb+4*mySide/2*maxSize,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de abajo a la izquierda
-		recursive(rgb+4*mySide/2*maxSize+4*mySide/2,maxSide,mySide/2,threshold,buffer); //llama para el cuadrante de abajo a la derecha
+		recursive(rgb+4*mySide/2*maxSide,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de abajo a la izquierda
+		recursive(rgb+4*mySide/2*maxSide+4*mySide/2,maxSide,mySide/2,threshold,buffer); //llama para el cuadrante de abajo a la derecha
 	}
 }
