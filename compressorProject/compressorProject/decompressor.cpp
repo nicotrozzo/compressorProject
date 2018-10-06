@@ -6,24 +6,28 @@
  
 using namespace std;
 
-
+/*Recibe un path a un archivo comprimido en formato .var y lo descomprime en un archivo
+del mismo nombre en formato png*/
 bool decompress(const char* filename)
 {
 	int hojas = 0, nodos = 0;
-	ifstream ifs;
+	ifstream src;
 	unsigned size;
-	ifs.open(filename, std::ifstream::in);
-	size = ifs.get();							//saco el tamaño de la imagen original ESTA MAL
+	string line;
+	src.open(filename, std::ifstream::in);
+	getline(src,line);							//saco el tamaño de la imagen original 
+	size = atoi(line.c_str());
+
 }
 
 
-void recursive(ifstream ifs, unsigned char* buffer, int hojas, int nodos, unsigned size)		//debe estar todo como el culo porque me volvi loco y entre a cambiar cosas
+void recursiveDesc(ifstream src, unsigned char* buffer, int hojas, int nodos, unsigned size)		//debe estar todo como el culo porque me volvi loco y entre a cambiar cosas
 {
-	if (ifs.get() == 'N')
+	if (src.get() == 'N')
 	{
 		nodos++;
 	}
-	else if (ifs.get() == 'H')
+	else if (src.get() == 'H')
 	{
 		if (hojas == 4)
 		{
