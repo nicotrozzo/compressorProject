@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "lodepng.h"
+#include "lodepng.cpp"
 #include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -17,6 +19,8 @@ bool compressor(const char* filename, unsigned threshold)
 		ret = false;        
 	}
 	size = height * width * 4;
+	buffer += to_string(height*width);			//cargo la cantidad de pixeles de la imagen	hay que ver como mierda lo hacemos
+	buffer += '-';					//mando un guion para informar que empieza el arbol
 	recursive(rgb,size,size,threshold,buffer);
 	//escribir buffer en archivo
 	return ret;
