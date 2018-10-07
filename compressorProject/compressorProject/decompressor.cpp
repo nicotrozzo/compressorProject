@@ -18,7 +18,7 @@ bool decompress(const char* filename)
 	string strFilename(filename), dotVar(".var");
 	if (strFilename.substr(strFilename.length()-strlen(".var")) == dotVar)	//si la terminacion del archivo es .var, continua
 	{
-		ifstream src(filename, ios::binary);
+		ifstream src(filename,ios::binary);
 		string line;								//para obtener la primera linea del archivo
 		getline(src, line);							//saco el ancho de la imagen original 
 		unsigned int width = atoi(line.c_str());
@@ -46,21 +46,29 @@ void recursiveDesc(ifstream& src, unsigned char* image, unsigned int depth, unsi
 	char c = src.get();
 	if (c == 'N')	//si encuentra un nodo
 	{
+		cout << "N: 1er cuad" << endl;
 		recursiveDesc(src, image, depth + 1, totalWidth);	//llama a la recursiva para cada cuadrante
-		recursiveDesc(src,image + floor(PIXELSIZE *totalWidth/pow(2,depth)),depth+1,totalWidth); //arriba a la derecha
-		recursiveDesc(src,image + floor(PIXELSIZE *totalWidth*(totalWidth/pow(2,depth))),depth+1,totalWidth);	//abajo a la izquierda
-		recursiveDesc(src,image + floor(PIXELSIZE * totalWidth / pow(2, depth) + PIXELSIZE * totalWidth*(totalWidth / pow(2, depth))),depth+1,totalWidth); //abajo a la derecha
+		cout << "N: 2do cuad" << endl;
+		recursiveDesc(src,image + static_cast<int>(floor(PIXELSIZE *totalWidth/pow(2,depth+1))),depth+1,totalWidth); //arriba a la derecha
+		cout << "N: 3er cuad" << endl;
+		recursiveDesc(src,image + static_cast<int>(floor(PIXELSIZE *totalWidth*(totalWidth/pow(2,depth+1)))),depth+1,totalWidth);	//abajo a la izquierda
+		cout << "N: 4to cuad" << endl;
+		recursiveDesc(src,image + static_cast<int>(floor(PIXELSIZE * totalWidth / pow(2, depth+1) + PIXELSIZE * totalWidth*(totalWidth / pow(2, depth+1)))),depth+1,totalWidth); //abajo a la derecha
+		cout << "Fin" << endl;
 	}
 	else if(c == 'H')	//si encuentra una hoja, caso base
 	{
+		unsigned char red = src.get();
+		unsigned char green = src.get();
+		unsigned char blue = src.get();
 		for (int i = 0; i < totalWidth / pow(2, depth); i++)	//llena todo el cuadrante del color de la hoja
 		{
 			for (int j = 0; j < totalWidth / pow(2, depth); j++)
 			{
-				image[PIXELSIZE*i + j*totalWidth*PIXELSIZE] = src.get();
-				image[PIXELSIZE*i + j * totalWidth*PIXELSIZE + 1] = src.get();
-				image[PIXELSIZE*i + j * totalWidth*PIXELSIZE + 2] = src.get();
-				image[PIXELSIZE*i + j * totalWidth*PIXELSIZE + 3] = A;	//transparencia 100%
+				image[PIXELSIZE*j + i*totalWidth*PIXELSIZE] = red;
+				image[PIXELSIZE*j + i * totalWidth*PIXELSIZE + 1] = green;
+				image[PIXELSIZE*j + i * totalWidth*PIXELSIZE + 2] = blue;
+				image[PIXELSIZE*j + i * totalWidth*PIXELSIZE + 3] = A;	//transparencia 100%
 			}
 		}
 	}
