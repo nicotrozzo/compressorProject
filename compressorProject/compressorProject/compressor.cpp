@@ -8,6 +8,7 @@
 using namespace std;
 
 #define MAXTHRESHOLD 3255
+#define PIXELSIZE 4		//en bytes
 
 void recursiveComp(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsigned threshold, string& buffer);
 
@@ -18,18 +19,18 @@ bool compressor(const char* filename, unsigned threshold)
 	bool ret = false;
 	unsigned char *rgb;
 	unsigned height, width, size;
-	string file = filename;
-	file.replace(file.length()-strlen("png"),strlen("png"),"var");	//cambia la terminacion .png por .var elegida para el archivo comprimido
-	ofstream compressedImage(file);
+	string compFilename = filename;
+	compFilename.replace(compFilename.length()-strlen("png"),strlen("png"),"var");	//cambia la terminacion .png por .var elegida para el archivo comprimido
+	ofstream compressedImage(compFilename);
 	if (!lodepng_decode32_file(&rgb, &height, &width, filename))
 	{
-		if ((height == width) && ((log2(static_cast<double>(width*height))-abs(log2(static_cast<double>(width*height))) )== 0))	//si la imagen es cuadrada y w*h es potencia de 2
+		if ((height == width) && ((log2(static_cast<double>(width*height))-floor(log2(static_cast<double>(width*height))) )== 0))	//si la imagen es cuadrada y w*h es potencia de 2
 		{
 			string buffer;	//crea buffer para ir guardando la informacion del archivo
-			size = height * width * 4;
-			buffer += to_string(height*width);	//cargo la cantidad de pixeles de la imagen
-			buffer += '\n';					//mando un enter para informar que empieza el arbol
-			recursiveComp(rgb, size, size, threshold*MAXTHRESHOLD / 100, buffer);
+			size = height * width * PIXELSIZE;
+			buffer += to_string(width);	//escribo el ancho de la imagen
+			buffer += '\n';					//enter para informar que empieza el arbol
+			recursiveComp(rgb, size, size, floor(threshold*MAXTHRESHOLD / 100), buffer);
 			//escribir buffer en archivo
 		}
 	}
@@ -51,18 +52,18 @@ void recursiveComp(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsign
 	{
 		for (int j = 0; j < mySide; j++)
 		{
-			if (rgb[4*i*j + i*(maxSide-mySide)] < Rmin)
-				Rmin = rgb[4 * i*j + i * (maxSide - mySide)];
-			else if (rgb[4*i*j + i*(maxSide-mySide)] > Rmax)
-				Rmax = rgb[4 * i*j + i * (maxSide - mySide)];
-			if (rgb[4 * i*j + i * (maxSide - mySide) + 1] < Gmin)
-				Gmin = rgb[4 * i*j + i * (maxSide - mySide) + 1];
-			else if (rgb[4 * i*j + i * (maxSide - mySide) + 1] > Gmax)
-				Gmax = rgb[4 * i*j + i * (maxSide - mySide) + 1];
-			if (rgb[4 * i*j + i * (maxSide - mySide) + 2] < Bmin)
-				Bmin = rgb[4 * i*j + i * (maxSide - mySide) + 2];
-			else if (rgb[4 * i*j + i * (maxSide - mySide) + 2] > Bmax)
-				Bmax = rgb[4 * i*j + i * (maxSide - mySide) + 2];
+			if (rgb[PIXELSIZE*i*j + i*(maxSide-mySide)] < Rmin)
+				Rmin = rgb[PIXELSIZE * i*j + i * (maxSide - mySide)];
+			else if (rgb[PIXELSIZE*i*j + i*(maxSide-mySide)] > Rmax)
+				Rmax = rgb[PIXELSIZE * i*j + i * (maxSide - mySide)];
+			if (rgb[PIXELSIZE * i*j + i * (maxSide - mySide) + 1] < Gmin)
+				Gmin = rgb[PIXELSIZE * i*j + i * (maxSide - mySide) + 1];
+			else if (rgb[PIXELSIZE * i*j + i * (maxSide - mySide) + 1] > Gmax)
+				Gmax = rgb[PIXELSIZE * i*j + i * (maxSide - mySide) + 1];
+			if (rgb[PIXELSIZE * i*j + i * (maxSide - mySide) + 2] < Bmin)
+				Bmin = rgb[PIXELSIZE * i*j + i * (maxSide - mySide) + 2];
+			else if (rgb[PIXELSIZE * i*j + i * (maxSide - mySide) + 2] > Bmax)
+				Bmax = rgb[PIXELSIZE * i*j + i * (maxSide - mySide) + 2];
 		}
 	}
 	weight = Rmax - Rmin + Gmax - Gmin + Bmax - Bmin;
@@ -73,9 +74,9 @@ void recursiveComp(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsign
 		{
 			for (int j = 0; j < mySide; j++)
 			{
-				totalRed += rgb[4 * i*j + i * (maxSide - mySide)];
-				totalGreen += rgb[4 * i*j + i * (maxSide - mySide) + 1];
-				totalBlue += rgb[4 * i*j + i * (maxSide - mySide) + 2];
+				totalRed += rgb[PIXELSIZE * i*j + i * (maxSide - mySide)];
+				totalGreen += rgb[PIXELSIZE * i*j + i * (maxSide - mySide) + 1];
+				totalBlue += rgb[PIXELSIZE * i*j + i * (maxSide - mySide) + 2];
 			}
 		}		
 		buffer += 'H';
@@ -87,8 +88,8 @@ void recursiveComp(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsign
 	{
 		buffer += 'N';	//marca como nodo la posicion actual
 		recursiveComp(rgb,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de arriba a la izquierda
-		recursiveComp(rgb+4*mySide/2,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de arriba a la derecha
-		recursiveComp(rgb+4*mySide/2*maxSide,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de abajo a la izquierda
-		recursiveComp(rgb+4*mySide/2*maxSide+4*mySide/2,maxSide,mySide/2,threshold,buffer); //llama para el cuadrante de abajo a la derecha
+		recursiveComp(rgb+PIXELSIZE*mySide/2,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de arriba a la derecha
+		recursiveComp(rgb+PIXELSIZE*mySide/2*maxSide,maxSide,mySide/2,threshold,buffer);	//llama para el cuadrante de abajo a la izquierda
+		recursiveComp(rgb+PIXELSIZE*mySide/2*maxSide+PIXELSIZE*mySide/2,maxSide,mySide/2,threshold,buffer); //llama para el cuadrante de abajo a la derecha
 	}
 }
