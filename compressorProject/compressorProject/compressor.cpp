@@ -18,13 +18,13 @@ bool compressor(const char* filename, unsigned threshold)
 	bool ret = false;
 	unsigned char *rgb;
 	unsigned height, width, size;
-	string compFilename = filename;
-	compFilename.replace(compFilename.length()-strlen("png"),strlen("png"),"var");	//cambia la terminacion .png por .var elegida para el archivo comprimido
-	ofstream compressedImage(compFilename);
 	if (!lodepng_decode32_file(&rgb, &height, &width, filename))
 	{
 		if ((height == width) && ((log2(static_cast<double>(width*height))-floor(log2(static_cast<double>(width*height))) )== 0))	//si la imagen es cuadrada y w*h es potencia de 2
 		{
+			string compFilename = filename;
+			compFilename.replace(compFilename.length() - strlen("png"), strlen("png"), "var");	//cambia la terminacion .png por .var elegida para el archivo comprimido
+			ofstream compressedImage(compFilename, ios::binary);	//abre archivo a escribir
 			string buffer;	//crea buffer para ir guardando la informacion del archivo
 			size = height * width * PIXELSIZE;
 			buffer += to_string(width);	//escribo el ancho de la imagen
@@ -67,7 +67,7 @@ void recursiveComp(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsign
 		}
 	}
 	weight = Rmax - Rmin + Gmax - Gmin + Bmax - Bmin;
-	if ((weight < threshold) || (mySide/2 == 1))
+	if ((weight < threshold) || (mySide == 1))
 	{
 		unsigned long int totalRed = 0, totalGreen = 0, totalBlue = 0;
 		for (int i = 0; i < mySide; i++)
@@ -80,9 +80,9 @@ void recursiveComp(unsigned char* rgb, unsigned maxSide, unsigned mySide, unsign
 			}
 		}		
 		buffer += 'H';
-		buffer += static_cast<unsigned char>(totalRed/(mySide*mySide)); //guarda el promedio de cada color que ocupa un byte cada uno
-		buffer += static_cast<unsigned char>(totalGreen/(mySide*mySide));
-		buffer += static_cast<unsigned char>(totalBlue/(mySide*mySide));
+		buffer += static_cast<unsigned char>(ceil(totalRed/(mySide*mySide))); //guarda el promedio de cada color que ocupa un byte cada uno
+		buffer += static_cast<unsigned char>(ceil(totalGreen/(mySide*mySide)));
+		buffer += static_cast<unsigned char>(ceil(totalBlue/(mySide*mySide)));
 	}
 	else
 	{

@@ -8,9 +8,12 @@ using namespace std;
 
 int main(void)
 {
-	compressor("aver.png", 2);
-	copyFile("aver.var", "aver2.var");
-	decompress("aver2.var");
+	compressor("pruebafacil.png", 3);
+	copyFile("pruebafacil.var","pruebafacil2.var");
+	decompress("pruebafacil2.var");
+	compressor("riverplate.png",0);
+	copyFile("riverplate.var","inventaronel.var");
+	decompress("inventaronel.var");
 }
 
 /*Copia el contenido de un archivo a otro*/

@@ -26,7 +26,7 @@ bool decompress(const char* filename)
 		recursiveDesc(src, image, 0, width);	//descomprime el archivo, carga en image la informacion de los pixeles
 		string descFilename = filename;		//nombre del archivo a crear
 		descFilename.replace(descFilename.length() - strlen("var"), strlen("var"), "png");	//cambia la terminacion .var por .png elegida para el archivo comprimido
-		if (lodepng_encode32_file(descFilename.c_str(), image, width, width))
+		if (!lodepng_encode32_file(descFilename.c_str(), image, width, width))
 		{
 			ret = true;
 		}
@@ -44,23 +44,21 @@ Recibe: -referencia al archivo comprimido
 void recursiveDesc(ifstream& src, unsigned char* image, unsigned int depth, unsigned int totalWidth )
 {
 	char c = src.get();
+	static int cursor = 0;
+	cursor++;
 	if (c == 'N')	//si encuentra un nodo
 	{
-		cout << "N: 1er cuad" << endl;
 		recursiveDesc(src, image, depth + 1, totalWidth);	//llama a la recursiva para cada cuadrante
-		cout << "N: 2do cuad" << endl;
-		recursiveDesc(src,image + static_cast<int>(floor(PIXELSIZE *totalWidth/pow(2,depth+1))),depth+1,totalWidth); //arriba a la derecha
-		cout << "N: 3er cuad" << endl;
-		recursiveDesc(src,image + static_cast<int>(floor(PIXELSIZE *totalWidth*(totalWidth/pow(2,depth+1)))),depth+1,totalWidth);	//abajo a la izquierda
-		cout << "N: 4to cuad" << endl;
-		recursiveDesc(src,image + static_cast<int>(floor(PIXELSIZE * totalWidth / pow(2, depth+1) + PIXELSIZE * totalWidth*(totalWidth / pow(2, depth+1)))),depth+1,totalWidth); //abajo a la derecha
-		cout << "Fin" << endl;
+		recursiveDesc(src,image + static_cast<int>(ceil(PIXELSIZE *totalWidth/pow(2,depth+1))),depth+1,totalWidth); //arriba a la derecha
+		recursiveDesc(src,image + static_cast<int>(ceil(PIXELSIZE *totalWidth*(totalWidth/pow(2,depth+1)))),depth+1,totalWidth);	//abajo a la izquierda
+		recursiveDesc(src,image + static_cast<int>(ceil(PIXELSIZE * totalWidth / pow(2, depth+1) + PIXELSIZE * totalWidth*(totalWidth / pow(2, depth+1)))),depth+1,totalWidth); //abajo a la derecha
 	}
-	else if(c == 'H')	//si encuentra una hoja, caso base
+	else if (c == 'H')	//si encuentra una hoja, caso base
 	{
 		unsigned char red = src.get();
 		unsigned char green = src.get();
 		unsigned char blue = src.get();
+		cursor += 3;
 		for (int i = 0; i < totalWidth / pow(2, depth); i++)	//llena todo el cuadrante del color de la hoja
 		{
 			for (int j = 0; j < totalWidth / pow(2, depth); j++)
@@ -71,6 +69,10 @@ void recursiveDesc(ifstream& src, unsigned char* image, unsigned int depth, unsi
 				image[PIXELSIZE*j + i * totalWidth*PIXELSIZE + 3] = A;	//transparencia 100%
 			}
 		}
+	}
+	else
+	{
+		cout << "Error!" << endl;
 	}
 }
 
