@@ -24,7 +24,7 @@ typedef enum { INVALID, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, EN
 class menu
 {
 public:
-	menu();
+	menu(bool compress_);
 	~menu();
 	void menuInit();
 	bool getInicialization();
@@ -34,6 +34,8 @@ public:
 	void process();
 	bool inminentEvent();
 	bool checkValidEvent();
+	void actionDecompress();
+	void actionCompress(int threshold);
 private:
 	ALLEGRO_DISPLAY * display;
 	ALLEGRO_EVENT_QUEUE * queue;
@@ -47,4 +49,5 @@ private:
 	unsigned int pageIndex;
 	keyPressed key;
 	unsigned int imageIndex;
+	bool compress;
 };

@@ -1,11 +1,14 @@
 #include "menu.h"
+#include "compressor.h"
+#include "decompressor.h"
 
-menu::menu()
+menu::menu(bool compress_)
 {
 	menuInit();
 	pages = 0;
 	pageIndex = 0;
 	imageIndex = 0;
+	compress = compress_;
 }
 
 void menu::menuInit()
@@ -99,7 +102,7 @@ bool menu::see_dirContent(const char* dir)
 	{
 		if (is_regular_file(p))
 		{
-			if (p.has_extension() && ((p.extension().string() == ".png") || (p.extension().string() == ".var")))
+			if (p.has_extension() && (((p.extension().string() == ".png") && compress) || ((p.extension().string() == ".var") && (!compress))))
 			{
 				if (img->imageInit(p.filename().string(), p.filename().string(), p.extension().string()))
 				{
@@ -113,7 +116,7 @@ bool menu::see_dirContent(const char* dir)
 			string Path = dir;
 			for (directory_iterator itr(p); itr != directory_iterator(); itr++)
 			{
-				if ((is_regular_file(itr->path())) && (itr->path().has_extension()) && ((itr->path().extension().string() == ".png") || (itr->path().extension().string() == ".var")))
+				if ((is_regular_file(itr->path())) && (itr->path().has_extension()) && (((itr->path().extension().string() == ".png") && compress) || ((itr->path().extension().string() == ".var") && !compress)))
 				{
 					if (img->imageInit(itr->path().filename().string(), Path + "\\" + itr->path().filename().string(), itr->path().extension().string())) //falta ver como hago en la etapa de descompresion
 					{
@@ -134,21 +137,18 @@ void menu::showAndProcessContent()
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	while (event.keyboard.keycode != ALLEGRO_KEY_ENTER)
-	//while (key != ENTER)
 	{
 		if ((inminentEvent() == true) && (key != INVALID))
 		{
 			process();
-			//ver el tema de paginas e imagen
 		}
 		show();
 	}
-	//llamar al compresor y descompresor... acordarse del treshold
 }
 
 void menu::process()
 {
-	switch (key) //falta ver que pasa cuando cambio selected con la imagen
+	switch (key) 
 	{
 	case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
 		if (key - 1 + 9 * pageIndex < images.size())
@@ -160,7 +160,7 @@ void menu::process()
 		key = INVALID;
 		break;
 	case RIGHT:
-		if (pageIndex < pages)
+		if (pageIndex < (pages - 1))
 		{
 			pageIndex++;
 		}
@@ -214,8 +214,8 @@ void menu::show()
 		itrImage = images.begin();
 		advance(itrImage, imageIndex + 9 * pageIndex);
 		temp = itrImage->getBitmap();
-		tWidth = itrImage->getBitmapWidth();//al_get_bitmap_width(temp);
-		tHeihght = itrImage->getBitmapHeight();//al_get_bitmap_height(temp);
+		tWidth = itrImage->getBitmapWidth();
+		tHeihght = itrImage->getBitmapHeight();
 		dx = ((imageIndex % 3) + 1) * margenX + (imageIndex % 3) * mosaicWidth;
 		if( (imageIndex == 3) || (imageIndex == 6))
 		{
@@ -302,6 +302,34 @@ bool menu::checkValidEvent()
 	}
 }
 
+void menu::actionCompress(int threshold)
+{
+	for (itrImage = images.begin(); itrImage != images.end(); itrImage++)
+	{
+		if (itrImage->isSelected())
+		{
+			if (itrImage->getExtension() == ".png")
+			{
+				compressor(itrImage->getPath().c_str(), threshold);
+			}
+		}
+	}
+}
+
+void menu::actionDecompress()
+{
+	for (itrImage = images.begin(); itrImage != images.end(); itrImage++)
+	{
+		if (itrImage->isSelected())
+		{
+			if (itrImage->getExtension() == ".var")
+			{
+				decompress(itrImage->getPath().c_str());
+			}
+		}
+	}	
+}
+
 menu::~menu()
 {
 	if (display != NULL)
@@ -312,5 +340,4 @@ menu::~menu()
 	{
 		al_destroy_event_queue(queue);
 	}
-	//delete img;
 }

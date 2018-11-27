@@ -20,17 +20,21 @@ bool compressor(const char* filename, unsigned threshold)
 	unsigned height, width, size;
 	if (!lodepng_decode32_file(&rgb, &height, &width, filename))
 	{
-		if ((height == width) && ((log2(static_cast<double>(width*height))-floor(log2(static_cast<double>(width*height))) )== 0))	//si la imagen es cuadrada y w*h es potencia de 2
+		if ((threshold >= 0) && (threshold <= 100))
 		{
-			string compFilename = filename;
-			compFilename.replace(compFilename.length() - strlen("png"), strlen("png"), "var");	//cambia la terminacion .png por .var elegida para el archivo comprimido
-			ofstream compressedImage(compFilename, ios::binary);	//abre archivo a escribir
-			string buffer;	//crea buffer para ir guardando la informacion del archivo
-			size = height * width * PIXELSIZE;
-			buffer += to_string(width);	//escribo el ancho de la imagen
-			buffer += '\n';					//enter para informar que empieza el arbol
-			recursiveComp(rgb, width, width, static_cast<int>(floor(threshold*MAXTHRESHOLD / 100)), buffer);
-			compressedImage << buffer;	//escribe buffer en el archivo
+			if ((height == width) && ((log2(static_cast<double>(width*height)) - floor(log2(static_cast<double>(width*height)))) == 0))	//si la imagen es cuadrada y w*h es potencia de 2
+			{
+				string compFilename = filename;
+				compFilename.replace(compFilename.length() - strlen("png"), strlen("png"), "var");	//cambia la terminacion .png por .var elegida para el archivo comprimido
+				ofstream compressedImage(compFilename, ios::binary);	//abre archivo a escribir
+				string buffer;	//crea buffer para ir guardando la informacion del archivo
+				size = height * width * PIXELSIZE;
+				buffer += to_string(width);	//escribo el ancho de la imagen
+				buffer += '\n';					//enter para informar que empieza el arbol
+				recursiveComp(rgb, width, width, static_cast<int>(floor(threshold*MAXTHRESHOLD / 100)), buffer);
+				compressedImage << buffer;	//escribe buffer en el archivo
+				ret = true;
+			}
 		}
 		free(rgb);
 	}

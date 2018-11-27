@@ -1,15 +1,11 @@
 #include "image.h"
 
-//#define PATH "C:\\Users\\fliatondi\\Documents\\FACULTAD\\EDA\\imagenes\\imagenes-png-8.png"
-
-image::image()
-{
-	//nada
-}
 
 bool image::imageInit(string filename, string path, string extension)
 {
 	this->filename = filename;
+	this->extension = extension;
+	this->path = path;
 	if (extension == ".var")
 	{
 		if ((bitmap = al_load_bitmap("pregunta.png")) == NULL)
@@ -17,7 +13,7 @@ bool image::imageInit(string filename, string path, string extension)
 			return false;
 		}
 	}
-	else if ((bitmap = al_load_bitmap(path.c_str())) == NULL) //falta ver que hago cuando estpy en la etapa de descompresion
+	else if ((bitmap = al_load_bitmap(path.c_str())) == NULL) 
 	{
 		return false;
 	}
@@ -27,7 +23,7 @@ bool image::imageInit(string filename, string path, string extension)
 	return true;
 }
 
-void image::toogleSelection()		//fijarse si conviene devolver el estado en el que dejo a selected o no
+void image::toogleSelection()
 {
 	selected = (selected == true ? false : true);
 }
@@ -45,6 +41,16 @@ bool image::isSelected()
 string image::getFilename()
 {
 	return filename;
+}
+
+string image::getExtension()
+{
+	return extension;
+}
+
+string image::getPath()
+{
+	return path;
 }
 
 ALLEGRO_BITMAP* image::getBitmap()
